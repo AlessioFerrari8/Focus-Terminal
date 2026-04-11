@@ -1,0 +1,44 @@
+import { Injectable } from '@angular/core';
+
+export type CommandResult = {
+  output: string[];
+  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP';
+  duration?: number; // durata del timer
+}
+
+
+
+// help
+const HELP_TEXT = [  
+  'Available commands:',
+  '  start [min]  — start a session (default 25 min)',
+  '  stop         — stops a session',
+  '  status       — shows the active timer',
+  '  clear        — clean the terminal',
+  '  help         — show this message',
+];
+
+@Injectable({providedIn: 'root',})
+export class CommandParser {
+  parse(input: string): CommandResult {
+    const [cmd, ...args] = input.trim().toLowerCase().split(' ');
+    
+    switch (cmd) {
+      case 'help':
+        return { output: HELP_TEXT, action: 'HELP' };
+      case 'start':
+        const minutes = parseInt(args[0]) || 25
+        return { output: [`Starting ${minutes}min focus session...`], action: 'START_TIMER', duration: minutes };
+      case 'stop':
+        return { output: ['Session stopped.'], action: 'STOP_TIMER' }
+      case 'clear':
+        return { output: [], action: 'CLEAR' };
+      case 'status':
+        return { output: ['No active session.'] };
+      default:
+        return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
+    }
+  }
+}
+
+
