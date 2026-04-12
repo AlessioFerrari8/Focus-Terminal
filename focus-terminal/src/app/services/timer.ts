@@ -8,14 +8,28 @@ export class Timer {
   remaining: WritableSignal<number> = signal<number>(0);
   isRunning: WritableSignal<boolean> = signal<boolean>(false);
   private interval: ReturnType<typeof setInterval> | null = null;
+  private _startedMinutes = 0;
 
+  // sessioni
+  sessions = signal<{ duration: number; completedAt: Date }[]>([]);
+
+  completeSession(duration: number) {
+    this.sessions.update(old => [...old, { duration, completedAt: new Date() }]);
+  }
+
+  /**
+   * metodo per far partire il tempo 
+   * @param minutes 
+   */
   start(minutes: number) {
+    this._startedMinutes = minutes;
+    // aggiorno i vari signal
     this.remaining.set(minutes * 60);
     this.isRunning.set(true);
     this.interval = setInterval(() => {
       this.remaining.update(old => {
         if (old <= 1) {
-          this.stop();
+          this.stop(true);
           return 0;
         }
         return old - 1;
@@ -23,8 +37,12 @@ export class Timer {
     }, 1000);
   }
 
-  stop() {
-    if (this.interval) clearInterval(this.interval);
+  stop(completed = false) {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+    if (completed) this.completeSession(this._startedMinutes);
     // stoppo la flag
     this.isRunning.set(false);
   }
