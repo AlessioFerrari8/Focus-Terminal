@@ -1,8 +1,13 @@
 <div #terminal class="h-screen bg-black text-green-400 font-mono p-4 overflow-y-auto">
   @for(line of lines(); track $index) {
-  <div class="whitespace-pre-wrap">
-    {{ line }}
-  </div>
+    <div class="whitespace-pre-wrap">
+      {{ line }}
+    </div>
+  }
+  @if(_timer.isRunning()) {
+    <div class="text-yellow-400 text-sm mb-4 border-b border-green-900 pb-2">
+      ⏱ Focus session active — {{ _timer.format() }} remaining
+    </div>
   }
 
   <div class="flex items-center mt-2">
