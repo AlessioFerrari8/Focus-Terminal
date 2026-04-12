@@ -8,6 +8,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Timer } from './services/timer';
 import { CommandParser } from './services/command-parser';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +29,6 @@ export class App implements OnInit {
   protected title = computed(() => 'focus-terminal');
   protected lines: WritableSignal<string[]> = signal<string[]>([]);
   protected command: WritableSignal<string> = signal('');
-  protected sessions: WritableSignal<any> = signal([]);
   // classico terminale frccia in su e giu
   protected history = signal<string[]>([]);
   protected historyIndex = signal<number>(-1);
@@ -37,27 +37,31 @@ export class App implements OnInit {
   // serivizi
   protected _timer = inject(Timer);
   protected _commandParser = inject(CommandParser);
+  private _http = inject(HttpClient);
 
   constructor() {
     effect(() => {
-      localStorage.setItem('focus-sessions', JSON.stringify(this.sessions()));
+      localStorage.setItem('focus-sessions', JSON.stringify(this._timer.sessions()));
     });
   }
 
   // scritta carina inziale
   ngOnInit() {
-    const boot = [
-      '==========================================',
-      '   FOCUS TERMINAL v1.0.0',
-      '   Type "help" to see available commands',
-      '   Made by Ferro with ❤️.',
-      '==========================================',
-      '',
-    ];
-    this.lines.set(boot);
+    this._http.get('banner.txt', { responseType: 'text' }).subscribe(text => {
+      const ascii = text.split('\n');
+      this.lines.set([
+        ...ascii,
+        '',
+        '   FOCUS TERMINAL v1.0.0',
+        '   Type "help" to see available commands',
+        '   Made by Ferro with ❤️.',
+        '',
+      ]);
+    });
+
     // local storage
     const stored = localStorage.getItem('focus-sessions');
-    if (stored) this.sessions.set(JSON.parse(stored));
+    if (stored) this._timer.sessions.set(JSON.parse(stored));
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -71,7 +75,7 @@ export class App implements OnInit {
     }
     if (event.key === 'ArrowDown') {
       // stessa cosa di arrowUp
-      event.preventDefault(); 
+      event.preventDefault();
       const index = Math.max(this.historyIndex() - 1, -1); // stavolta ovviamente max non min
       this.historyIndex.set(index);
       this.command.set(index === -1 ? '' : this.history()[this.history().length - 1 - index]);
