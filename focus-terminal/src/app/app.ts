@@ -123,7 +123,7 @@ export class App implements OnInit {
       const msg = this._timer.isRunning() // messaaggio ritorno
         ? `Session active — ${this._timer.format()} remaining` // sessione attiva
         : 'No active session.'; // sessione non attiva
-      this.lines.update(l => [...l, `> ${trimmed}`, msg]); // scrivo
+      this.lines.update(l => [...l, msg]); // scrivo
     }
 
 

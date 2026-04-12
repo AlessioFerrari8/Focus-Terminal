@@ -33,7 +33,7 @@ export class CommandParser {
       case 'clear':
         return { output: [], action: 'CLEAR' };
       case 'status':
-        return { output: ['No active session.'] };
+        return { output: ['No active session.'], action: 'STATUS' };
       case 'sessions':
         return { output: [], action: 'SESSIONS_HISTORY'}
       default:
