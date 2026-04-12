@@ -11,6 +11,14 @@ export class Timer {
   private _startedMinutes = 0;
   sessionCompleted = signal<boolean>(false);
 
+  // Pomodoro
+  pomodoroMode: WritableSignal<boolean> = signal<boolean>(false);
+  pomodoroRound: WritableSignal<number> = signal<number>(0);
+  isBreak: WritableSignal<boolean> = signal<boolean>(false);
+
+  // tempi
+  private readonly WORK_MINUTES = 25;
+  private readonly BREAK_MINUTES = 5;
 
   // sessioni
   sessions = signal<{ duration: number; completedAt: Date }[]>([]);
@@ -39,6 +47,13 @@ export class Timer {
     }, 1000);
   }
 
+  startPomodoro() {
+    // aggiorno i 2 signal e faccio partire normalmente
+    this.pomodoroMode.set(true);
+    this.isBreak.set(false);
+    this.start(this.WORK_MINUTES);
+  }
+
   stop(completed = false) {
     if (this.interval) {
       clearInterval(this.interval);
@@ -50,9 +65,29 @@ export class Timer {
       this.sessionCompleted.set(true);
       // rimetto subito a false
       setTimeout(() => this.sessionCompleted.set(false), 100) 
+      // se sono in pomodoro
+      if (this.pomodoroMode()) {
+        if (this.isBreak()) {
+          // pausa?
+          this.isBreak.set(false);
+          // faccio partire il tempo di lavoro
+          setTimeout(() => this.start(this.WORK_MINUTES), 500)
+        } else {
+          // lavoro?
+          this.pomodoroRound.update(old => old + 1);
+          this.isBreak.set(true)
+          // faccio partire il tempo di pausa
+          setTimeout(() => this.start(this.BREAK_MINUTES), 500)
+        }
+      }
     } 
     // stoppo la flag
     this.isRunning.set(false);
+  }
+
+  stopPomodoro() {
+    this.stop();
+    this.pomodoroMode.set(false);
   }
 
   format(): string {
