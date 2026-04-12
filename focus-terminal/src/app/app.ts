@@ -41,7 +41,11 @@ export class App implements OnInit {
   private _todo = inject(Todo);
 
   // comandi 
-  private readonly COMMANDS = ['start', 'stop', 'status', 'sessions', 'clear', 'help'];
+  private readonly COMMANDS = [
+    'start', 'stop', 'status', 'sessions', 
+    'clear', 'help', 'pomodoro', 'add', 
+    'done', 'todos', 'theme'
+  ];
 
   // tema
   private theme: WritableSignal<string> = signal('green')
@@ -200,10 +204,13 @@ export class App implements OnInit {
     } else if (result.action === 'DONE' && result.n) {
       // uso il servizio per completare
       this._todo.complete(result.n);
+    } else if (result.action === 'POMODORO') {
+      this._timer.startPomodoro();
     }
-
-
   }
+
+
+
 
   /**
    * metodo per scrollare giu, lo chiamo con l'afterview
