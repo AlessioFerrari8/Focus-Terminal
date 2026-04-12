@@ -10,6 +10,7 @@ import { Timer } from './services/timer';
 import { CommandParser } from './services/command-parser';
 import { HttpClient } from '@angular/common/http';
 import { NgClass } from '@angular/common';
+import { Todo } from './services/todo';
 
 
 @Component({
@@ -20,8 +21,6 @@ import { NgClass } from '@angular/common';
 })
 
 export class App implements OnInit {
-
-
 
   // per gestire scroll
   @ViewChild('terminal') terminalRef!: ElementRef;
@@ -39,12 +38,38 @@ export class App implements OnInit {
   protected _timer = inject(Timer);
   protected _commandParser = inject(CommandParser);
   private _http = inject(HttpClient);
+  private _todo = inject(Todo);
 
   // comandi 
   private readonly COMMANDS = ['start', 'stop', 'status', 'sessions', 'clear', 'help'];
 
   // tema
   private theme: WritableSignal<string> = signal('green')
+
+  // quotes motivazionali
+  protected quotes: WritableSignal<string[]> =
+    signal([
+      "Never stop starting, never start stopping.",
+      "Success is the sum of small efforts repeated day in and day out.",
+      "Do it today, not tomorrow.",
+      "Discipline beats motivation.",
+      "Every mistake is a step toward success.",
+      "If you want something you've never had, you must do something you've never done.",
+      "Consistency creates results.",
+      "Don't wait for opportunity, create it.",
+      "The limit exists only in your mind.",
+      "Small daily progress leads to big results.",
+      "Don't fear failure, fear not trying.",
+      "Be stronger than your excuses.",
+      "Hard work always pays off.",
+      "Turn pain into power.",
+      "Believe in yourself, always.",
+      "Don't quit now.",
+      "Do what you can, with what you have, where you are.",
+      "Every day is a new opportunity.",
+      "The hard road leads to amazing destinations.",
+      "Become the best version of yourself."
+    ]);
 
   // associazione nome tema --> classe tailwind
   protected themeClass = computed(() => {
@@ -59,9 +84,19 @@ export class App implements OnInit {
   });
 
   constructor() {
+    // local storage
     effect(() => {
       localStorage.setItem('focus-sessions', JSON.stringify(this._timer.sessions()));
     });
+
+    // varie quotes
+    effect(() => {
+      if (this._timer.sessionCompleted()) {
+        const quote = this.quotes()[Math.floor(Math.random() * this.quotes().length)];
+        this.lines.update(l => [...l, '', `  "${quote}"`, '']);
+      }
+    });
+
   }
 
   // scritta carina inziale
@@ -153,7 +188,18 @@ export class App implements OnInit {
       this.lines.update(l => [...l, msg]); // scrivo
     } else if (result.action === 'CHANGE_THEME' && result.theme) {
       // aggiorno il signal con il colore scelto
-      this.theme.set(result.theme); 
+      this.theme.set(result.theme);
+    } else if (result.action === 'ADD_TASK' && result.task) {
+      // uso il servizio per aggiungere un task
+      this._todo.add(result.task);
+    } else if (result.action === 'TODOS') {
+      // prendo dal servizio e stampo
+      const todos = this._todo.getAll();
+      const output = todos.length === 0 ? ['No tasks yet.'] : todos;
+      this.lines.update(l => [...l, 'Tasks:', ...output]);
+    } else if (result.action === 'DONE' && result.n) {
+      // uso il servizio per completare
+      this._todo.complete(result.n);
     }
 
 
