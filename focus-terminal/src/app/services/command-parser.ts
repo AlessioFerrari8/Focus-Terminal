@@ -2,18 +2,20 @@ import { Injectable } from '@angular/core';
 
 export type CommandResult = {
   output: string[];
-  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS';
+  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME';
   duration?: number; // durata del timer
+  theme?: string;
 }
 
 // help
 const HELP_TEXT = [  
   'Available commands:',
-  '  start [min]  — start a session (default 25 min)',
-  '  stop         — stops a session',
-  '  status       — shows the active timer',
-  '  sessions     — shows history',
-  '  clear        — clean the terminal',
+  '  start [min]   — start a session (default 25 min)',
+  '  stop          — stops a session',
+  '  status        — shows the active timer',
+  '  sessions      — shows history',
+  '  clear         — clean the terminal',
+  '  theme [color] — choose theme',
   '  help         — show this message',
 ];
 
@@ -36,6 +38,9 @@ export class CommandParser {
         return { output: ['No active session.'], action: 'STATUS' };
       case 'sessions':
         return { output: [], action: 'SESSIONS_HISTORY'}
+      case 'theme':
+        const theme = args[0] || 'green';
+        return { output: [`Switching to ${theme} theme`], action: 'CHANGE_THEME', theme }
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }
