@@ -57,7 +57,7 @@ export class CommandParser {
         if (isNaN(n)) return { output: ['Usage: done [number]'] };
         return { output: [`Task ${n} completed!`], action: 'DONE', n }
       case 'pomodoro':
-        return { output: [`Start pomodoro`], action: 'POMODORO'}
+        return { output: [`Starting Pomodoro mode — 25min work / 5min break`], action: 'POMODORO'}
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }
