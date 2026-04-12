@@ -9,6 +9,8 @@ export class Timer {
   isRunning: WritableSignal<boolean> = signal<boolean>(false);
   private interval: ReturnType<typeof setInterval> | null = null;
   private _startedMinutes = 0;
+  sessionCompleted = signal<boolean>(false);
+
 
   // sessioni
   sessions = signal<{ duration: number; completedAt: Date }[]>([]);
@@ -42,7 +44,13 @@ export class Timer {
       clearInterval(this.interval);
       this.interval = null;
     }
-    if (completed) this.completeSession(this._startedMinutes);
+    if (completed) {
+      this.completeSession(this._startedMinutes);
+      // metto a true 
+      this.sessionCompleted.set(true);
+      // rimetto subito a false
+      setTimeout(() => this.sessionCompleted.set(false), 100) 
+    } 
     // stoppo la flag
     this.isRunning.set(false);
   }
