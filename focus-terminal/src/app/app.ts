@@ -62,6 +62,7 @@ export class App implements OnInit {
 
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'ArrowUp') {
+      event.preventDefault(); // blocco il comportamento normale
       // mi calcolo l'indice del precedente
       const index = Math.min(this.historyIndex() + 1, this.history().length - 1);
       this.historyIndex.set(index);
@@ -70,6 +71,7 @@ export class App implements OnInit {
     }
     if (event.key === 'ArrowDown') {
       // stessa cosa di arrowUp
+      event.preventDefault(); 
       const index = Math.max(this.historyIndex() - 1, -1); // stavolta ovviamente max non min
       this.historyIndex.set(index);
       this.command.set(index === -1 ? '' : this.history()[this.history().length - 1 - index]);
@@ -83,6 +85,9 @@ export class App implements OnInit {
 
     // risultato dal parse
     const result = this._commandParser.parse(trimmed);
+    // aggiungo il risultato alla history per poi usarlo
+    this.history.update(h => [...h, trimmed]);
+    this.historyIndex.set(-1);
     this.command.set('');
 
     if (result.action === 'CLEAR') {

@@ -13,8 +13,12 @@
   <div class="flex items-center mt-2">
     <span class="mr-2">></span>
     <span class="relative flex-1 flex items-center">
-      <input #cmdInput [ngModel]="command()" (ngModelChange)="command.set($event)" (keydown.enter)="handleCommand()"
-        class="bg-transparent outline-none w-full caret-transparent absolute inset-0 z-10" autofocus />
+      <input 
+      #cmdInput [ngModel]="command()" 
+      (ngModelChange)="command.set($event)" 
+      (keydown.enter)="handleCommand()"
+      (keydown)="onKeyDown($event)"
+      class="bg-transparent outline-none w-full caret-transparent absolute inset-0 z-10" autofocus />
       <span class="pointer-events-none whitespace-pre">{{ command() }}<span class="animate-pulse">█</span></span>
     </span>
   </div>
