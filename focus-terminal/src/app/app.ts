@@ -3,16 +3,18 @@ import {
   ElementRef, ViewChild, AfterViewChecked,
   inject,
   OnInit,
-  effect
+  effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Timer } from './services/timer';
 import { CommandParser } from './services/command-parser';
 import { HttpClient } from '@angular/common/http';
+import { NgClass } from '@angular/common';
+
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule],
+  imports: [FormsModule, NgClass],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -33,11 +35,28 @@ export class App implements OnInit {
   protected history = signal<string[]>([]);
   protected historyIndex = signal<number>(-1);
 
-
   // serivizi
   protected _timer = inject(Timer);
   protected _commandParser = inject(CommandParser);
   private _http = inject(HttpClient);
+
+  // comandi 
+  private readonly COMMANDS = ['start', 'stop', 'status', 'sessions', 'clear', 'help'];
+
+  // tema
+  private theme: WritableSignal<string> = signal('green')
+
+  // associazione nome tema --> classe tailwind
+  protected themeClass = computed(() => {
+    const map: Record<string, string> = {
+      green: 'text-green-400',
+      amber: 'text-amber-400',
+      red: 'text-red-400',
+      cyan: 'text-cyan-400',
+    };
+    // base resta sempre green
+    return map[this.theme()] ?? 'text-green-400';
+  });
 
   constructor() {
     effect(() => {
@@ -79,6 +98,10 @@ export class App implements OnInit {
       const index = Math.max(this.historyIndex() - 1, -1); // stavolta ovviamente max non min
       this.historyIndex.set(index);
       this.command.set(index === -1 ? '' : this.history()[this.history().length - 1 - index]);
+    }
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      this.autoComplete();
     }
   }
 
@@ -128,6 +151,9 @@ export class App implements OnInit {
         ? `Session active — ${this._timer.format()} remaining` // sessione attiva
         : 'No active session.'; // sessione non attiva
       this.lines.update(l => [...l, msg]); // scrivo
+    } else if (result.action === 'CHANGE_THEME' && result.theme) {
+      // aggiorno il signal con il colore scelto
+      this.theme.set(result.theme); 
     }
 
 
@@ -139,6 +165,23 @@ export class App implements OnInit {
   scrollToBottom() {
     const el = this.terminalRef?.nativeElement;
     if (el) el.scrollTop = el.scrollHeight;
+  }
+
+  autoComplete() {
+    // parte attuale
+    const current = this.command().trim()
+    if (!current) return;
+
+    // possibili
+    const matches = this.COMMANDS.filter(command => command.startsWith(current))
+
+    // o completo o mostro i vari
+    if (matches.length === 1) {
+      this.command.set(matches[0]);
+    } else if (matches.length > 1) {
+      // suggerimenti 
+      this.lines.update(l => [...l, `> ${current}`, matches.join('   ')]);
+    }
   }
 }
 
