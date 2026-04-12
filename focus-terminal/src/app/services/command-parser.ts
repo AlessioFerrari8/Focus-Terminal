@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 
 export type CommandResult = {
   output: string[];
-  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME';
+  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME' | 'ADD_TASK' | 'TODOS' | 'DONE' | 'POMODORO';
   duration?: number; // durata del timer
   theme?: string;
+  task?: string;
+  n?: number;
 }
 
 // help
@@ -13,10 +15,14 @@ const HELP_TEXT = [
   '  start [min]   — start a session (default 25 min)',
   '  stop          — stops a session',
   '  status        — shows the active timer',
+  '  add [task]    — adds a task',
+  '  done [n]      — completes a task',
+  '  todos         — shows all tasks',
+  '  pomodoro      — start a session with 5 min pause',
   '  sessions      — shows history',
   '  clear         — clean the terminal',
   '  theme [color] — choose theme',
-  '  help         — show this message',
+  '  help          — show this message',
 ];
 
 @Injectable({providedIn: 'root',})
@@ -41,6 +47,17 @@ export class CommandParser {
       case 'theme':
         const theme = args[0] || 'green';
         return { output: [`Switching to ${theme} theme`], action: 'CHANGE_THEME', theme }
+      case 'add':
+        const task = args.join(' ') || '';
+        return { output: [`Task ${task} added correctly`], action: 'ADD_TASK', task }
+      case 'todos':
+        return { output: [], action: 'TODOS' }
+      case 'done':
+        const n = parseInt(args[0]);
+        if (isNaN(n)) return { output: ['Usage: done [number]'] };
+        return { output: [`Task ${n} completed!`], action: 'DONE', n }
+      case 'pomodoro':
+        return { output: [`Start pomodoro`], action: 'POMODORO'}
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }
