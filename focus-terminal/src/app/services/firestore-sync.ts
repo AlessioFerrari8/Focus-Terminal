@@ -1,8 +1,7 @@
-import { inject, Injectable, signal, WritableSignal } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
-import { Firestore } from '@angular/fire/firestore';
+import { Injectable } from '@angular/core';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
+import { auth, firestore } from '../firebase.config';
 
 interface UserData {
 
@@ -12,14 +11,10 @@ interface UserData {
   providedIn: 'root',
 })
 export class FirestoreSync {
-  // cose di firestore
-  private _firestore = inject(Firestore);
-  private _auth = inject(Auth)
-  // User non interfaccia, ma da firebase
   private _currentUser: User | null = null;
 
   constructor() {
-    onAuthStateChanged(this._auth, (user) => {
+    onAuthStateChanged(auth, (user) => {
       this._currentUser = user;
     });
   }
@@ -34,7 +29,7 @@ export class FirestoreSync {
 
     try {
       // salvataggio su firestore
-      const userDocRef = doc(this._firestore, 'users', this._currentUser.uid);
+      const userDocRef = doc(firestore, 'users', this._currentUser.uid);
       await updateDoc(userDocRef, {
         sessions: sessions,
         updatedAt: new Date()
