@@ -50,6 +50,12 @@ export class App implements OnInit {
     'pause'
   ];
 
+  // opzioni disponibili per i comandi
+  private readonly COMMAND_OPTIONS: Record<string, string[]> = {
+    theme: ['green', 'amber', 'red', 'cyan'],
+    play: ['rain', 'white-noise', 'lofi'],
+  };
+
   // tema
   private theme: WritableSignal<string> = signal('green')
 
@@ -233,15 +239,40 @@ export class App implements OnInit {
     const current = this.command().trim()
     if (!current) return;
 
-    // possibili
-    const matches = this.COMMANDS.filter(command => command.startsWith(current))
+    // Dividi il comando e gli argomenti
+    const parts = current.split(' ');
+    const cmd = parts[0];
+    const arg = parts.slice(1).join(' ').toLowerCase();
 
-    // o completo o mostro i vari
-    if (matches.length === 1) {
-      this.command.set(matches[0]);
-    } else if (matches.length > 1) {
-      // suggerimenti 
-      this.lines.update(l => [...l, `> ${current}`, matches.join('   ')]);
+    // Se è un comando con opzioni disponibili
+    if (this.COMMAND_OPTIONS[cmd]) {
+      const options = this.COMMAND_OPTIONS[cmd];
+      
+      // Se l'argomento è vuoto, mostra tutte le opzioni
+      if (!arg) {
+        this.lines.update(l => [...l, `> ${current}`, options.join('   ')]);
+        return;
+      }
+
+      // Filtra le opzioni che iniziano con arg
+      const matches = options.filter(opt => opt.startsWith(arg));
+      
+      if (matches.length === 1) {
+        this.command.set(`${cmd} ${matches[0]}`);
+      } else if (matches.length > 1) {
+        this.lines.update(l => [...l, `> ${current}`, matches.join('   ')]);
+      }
+    } else {
+      // Autocompletion per i comandi
+      const matches = this.COMMANDS.filter(command => command.startsWith(current))
+
+      // o completo o mostro i vari
+      if (matches.length === 1) {
+        this.command.set(matches[0]);
+      } else if (matches.length > 1) {
+        // suggerimenti 
+        this.lines.update(l => [...l, `> ${current}`, matches.join('   ')]);
+      }
     }
   }
 }
