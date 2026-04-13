@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 
 export type CommandResult = {
   output: string[];
-  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME' | 'ADD_TASK' | 'TODOS' | 'DONE' | 'POMODORO';
+  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME' | 'ADD_TASK' | 'TODOS' | 'DONE' | 'POMODORO' | 'PLAY' | 'PAUSE';
   duration?: number; // durata del timer
   theme?: string;
   task?: string;
   n?: number;
+  genre?: string;
 }
 
 // help
@@ -20,6 +21,8 @@ const HELP_TEXT = [
   '  todos         — shows all tasks',
   '  pomodoro      — start a session with 5 min pause',
   '  sessions      — shows history',
+  '  play [type]   — plays some music',
+  '  pause         — stop music',
   '  clear         — clean the terminal',
   '  theme [color] — choose theme',
   '  help          — show this message',
@@ -58,6 +61,11 @@ export class CommandParser {
         return { output: [`Task ${n} completed!`], action: 'DONE', n }
       case 'pomodoro':
         return { output: [`Starting Pomodoro mode — 25min work / 5min break`], action: 'POMODORO'}
+      case 'play':
+        const genre = args.join('') || 'rain';
+        return { output: [`Starting ${genre} music`], action: 'PLAY', genre}
+      case 'pause':
+        return { output: [`Stopping music`], action: 'PAUSE'}
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }
