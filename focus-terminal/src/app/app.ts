@@ -11,6 +11,7 @@ import { CommandParser } from './services/command-parser';
 import { HttpClient } from '@angular/common/http';
 import { NgClass } from '@angular/common';
 import { Todo } from './services/todo';
+import { Audio } from './services/audio';
 
 
 @Component({
@@ -39,12 +40,14 @@ export class App implements OnInit {
   protected _commandParser = inject(CommandParser);
   private _http = inject(HttpClient);
   private _todo = inject(Todo);
+  private _music = inject(Audio);
 
   // comandi 
   private readonly COMMANDS = [
     'start', 'stop', 'status', 'sessions', 
     'clear', 'help', 'pomodoro', 'add', 
-    'done', 'todos', 'theme'
+    'done', 'todos', 'theme', 'play',
+    'pause'
   ];
 
   // tema
@@ -206,7 +209,12 @@ export class App implements OnInit {
       this._todo.complete(result.n);
     } else if (result.action === 'POMODORO') {
       this._timer.startPomodoro();
+    } else if (result.action === 'PLAY' && result.genre) {
+      this._music.play(result.genre as 'rain' | 'white-noise' | 'lofi');
+    } else if (result.action === 'PAUSE') {
+      this._music.stop();
     }
+
   }
 
 
