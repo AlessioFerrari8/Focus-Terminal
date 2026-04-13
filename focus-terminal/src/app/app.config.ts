@@ -1,15 +1,59 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, APP_INITIALIZER, ErrorHandler } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { routes } from './app.routes';
+import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
+import { errorInterceptor } from './core/interceptors/error-interceptor';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
-// Inizializza Firebase nel firebase.config.ts
-import './firebase.config';
+import { routes } from './app.routes';
+import { environment } from '../environments/environment';
+
+class CorsErrorHandler implements ErrorHandler {
+  handleError(error: Error): void {
+    if (error.message?.includes('Cross-Origin') || error.message?.includes('window.closed')) {
+      console.warn('CORS error handled:', error);
+      return;
+    }
+    console.error(error);
+  }
+}
+
+const loadConfigAndInitFirebase = (http: HttpClient) => () => {
+  return http.get<any>(environment.configUrl)
+    .toPromise()
+    .then(config => {
+      if (config && config.firebase) {
+        environment.firebase = config.firebase;
+        console.log('✅ Firebase config loaded from config.json');
+        
+        // Inizializza Firebase SDK nativo
+        const app = initializeApp(environment.firebase);
+        getAuth(app);
+        getFirestore(app);
+      } else {
+        console.warn('Firebase config not found in config.json, using environment defaults');
+      }
+    })
+    .catch(err => {
+      console.error('❌ Errore nel caricamento di config.json:', err);
+    });
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([errorInterceptor])),
+    {
+      provide: ErrorHandler,
+      useClass: CorsErrorHandler
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: loadConfigAndInitFirebase,
+      deps: [HttpClient],
+      multi: true
+    }
   ]
 };
