@@ -28,6 +28,12 @@ const HELP_TEXT = [
   '  help          — show this message',
 ];
 
+// opzioni disponibili per i comandi
+const COMMAND_OPTIONS = {
+  theme: ['green', 'amber', 'red', 'cyan'],
+  play: ['rain', 'white-noise', 'lofi'],
+};
+
 @Injectable({providedIn: 'root',})
 export class CommandParser {
   parse(input: string): CommandResult {
@@ -48,7 +54,13 @@ export class CommandParser {
       case 'sessions':
         return { output: [], action: 'SESSIONS_HISTORY'}
       case 'theme':
-        const theme = args[0] || 'green';
+        const theme = args[0] || null;
+        if (!theme) {
+          return { 
+            output: ['Available themes:', `  ${COMMAND_OPTIONS.theme.join('  ')}`, '  Usage: theme [color]'], 
+            action: 'CHANGE_THEME' 
+          };
+        }
         return { output: [`Switching to ${theme} theme`], action: 'CHANGE_THEME', theme }
       case 'add':
         const task = args.join(' ') || '';
@@ -62,7 +74,13 @@ export class CommandParser {
       case 'pomodoro':
         return { output: [`Starting Pomodoro mode — 25min work / 5min break`], action: 'POMODORO'}
       case 'play':
-        const genre = args.join('') || 'rain';
+        const genre = args.join('') || null;
+        if (!genre) {
+          return { 
+            output: ['Available music types:', `  ${COMMAND_OPTIONS.play.join('  ')}`, '  Usage: play [type]'], 
+            action: 'PLAY' 
+          };
+        }
         return { output: [`Starting ${genre} music`], action: 'PLAY', genre}
       case 'pause':
         return { output: [`Stopping music`], action: 'PAUSE'}
