@@ -49,3 +49,8 @@ AURA.md
 
 # Firebase config (contains API keys)
 src/app/firebase.config.ts
+
+
+config.json
+
+.env
