@@ -57,6 +57,7 @@ export class App implements OnInit {
   private readonly COMMAND_OPTIONS: Record<string, string[]> = {
     theme: ['green', 'amber', 'red', 'cyan'],
     play: ['rain', 'white-noise', 'lofi'],
+    auth: ['login', 'register', 'logout', 'status'],
   };
 
   // tema

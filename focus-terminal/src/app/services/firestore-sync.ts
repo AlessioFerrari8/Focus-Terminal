@@ -19,10 +19,17 @@ export class FirestoreSync {
   private _currentUser: User | null = null;
 
   constructor() {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      this._currentUser = user;
-    });
+    // Lazy load: aspetta che Firebase sia inizializzato
+    setTimeout(() => {
+      try {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+          this._currentUser = user;
+        });
+      } catch (error) {
+        console.warn('Firebase non ancora inizializzato in FirestoreSync:', error);
+      }
+    }, 0);
   }
 
   // salvo sessioni su fs

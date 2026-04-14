@@ -12,11 +12,17 @@ export class Auth {
   error: WritableSignal<string | null> = signal<string | null>(null);
 
   constructor() {
-    // solita procedura 
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      this.currentUser.set(user);
-    })
+    // Lazy load: aspetta che Firebase sia inizializzato
+    setTimeout(() => {
+      try {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+          this.currentUser.set(user);
+        })
+      } catch (error) {
+        console.warn('Firebase non ancora inizializzato in Auth:', error);
+      }
+    }, 0);
   }
 
   // registrazione
