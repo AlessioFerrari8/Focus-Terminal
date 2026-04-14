@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { NgClass } from '@angular/common';
 import { Todo } from './services/todo';
 import { Audio } from './services/audio';
+import { FirestoreSync } from './services/firestore-sync';
 
 
 @Component({
@@ -129,6 +130,22 @@ export class App implements OnInit {
     // local storage
     const stored = localStorage.getItem('focus-sessions');
     if (stored) this._timer.sessions.set(JSON.parse(stored));
+
+    // firebase se auth
+    const firebaseSync = inject(FirestoreSync);
+    firebaseSync.loadUserData().then(data => {
+      if (data) {
+        // inizializzo i vari attributi con [] di default o green per il theme
+        this._timer.sessions.set(data.sessions || [])
+        this._todo.tasks.set(data.tasks || [])
+        this.theme.set(data.theme || 'green')
+      }
+    }) 
+
+     // Salva il tema su Firestore quando cambia
+    effect(() => {
+      firebaseSync.saveTheme(this.theme());
+    });
   }
 
   onKeyDown(event: KeyboardEvent) {
