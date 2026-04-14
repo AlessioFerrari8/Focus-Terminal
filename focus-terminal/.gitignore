@@ -54,3 +54,5 @@ src/app/firebase.config.ts
 config.json
 
 .env
+
+/md

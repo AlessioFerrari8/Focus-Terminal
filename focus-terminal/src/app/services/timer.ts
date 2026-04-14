@@ -108,4 +108,176 @@ export class Timer {
     return `${m}:${s}`;
   }
 
+  // calcolo le statistiche
+  calculateStats() {
+    // ritorno sessioni, divise per data, settimana 
+    const sessions = this.sessions();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(today);
+    weekAgo.setDate(today.getDate() - 7);
+
+    // Totale
+    const totalMinutes = sessions.reduce((sum, s) => sum + s.duration, 0);
+    const totalSessionsCount = sessions.length;
+    const averageDuration = totalSessionsCount > 0 ? Math.round(totalMinutes / totalSessionsCount) : 0;
+
+    // Oggi
+    const todaySessions = sessions.filter(s => {
+      const sessionDate = new Date(s.completedAt);
+      return sessionDate >= today;
+    }).length;
+    const todayMinutes = sessions
+      .filter(s => new Date(s.completedAt) >= today)
+      .reduce((sum, s) => sum + s.duration, 0);
+
+    // Questa settimana
+    const weekSessions = sessions.filter(s => {
+      const sessionDate = new Date(s.completedAt);
+      return sessionDate >= weekAgo;
+    }).length;
+    const weekMinutes = sessions
+      .filter(s => new Date(s.completedAt) >= weekAgo)
+      .reduce((sum, s) => sum + s.duration, 0);
+
+    // Streak
+    const currentStreak = this.calculateCurrentStreak(sessions);
+    const bestStreak = this.calculateBestStreak(sessions);
+
+    // By day (ultimi 7 giorni)
+    const byDay = this.getStatsByDay(sessions, 7);
+
+    // ritorno l'oggetto
+    return {
+      totalSessions: totalSessionsCount,
+      totalMinutes,
+      averageDuration,
+      todaySessions,
+      todayMinutes,
+      weekSessions,
+      weekMinutes,
+      currentStreak,
+      bestStreak,
+      byDay
+    };
+  }
+
+  // streak attuale
+  private calculateCurrentStreak(sessions: any[]): number {
+    if (sessions.length === 0) return 0;
+
+    // data
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let streak = 0;
+
+    // ciclo per ogni giorno
+    for (let i = 0; i < 365; i++) {
+      // controllo la data
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() - i);
+      const dayStr = checkDate.toDateString();
+
+      // se ha la sessione lo aggiungo
+      const hasSessionOnDay = sessions.some(s => 
+        new Date(s.completedAt).toDateString() === dayStr
+      );
+
+      // aggiorno la streak
+      if (hasSessionOnDay) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  // calcolo la streak migliore
+  private calculateBestStreak(sessions: any[]): number {
+    if (sessions.length === 0) return 0;
+
+    // variabili iniziali con sessioni come prima
+    let maxStreak = 0;
+    let currentStreak = 0;
+    const sortedSessions = [...sessions].sort((a, b) => 
+      new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
+    );
+
+    // data
+    let lastDate: Date | null = null;
+
+    // ciclo tutte le sessioni
+    for (const session of sortedSessions) {
+      const sessionDate = new Date(session.completedAt);
+      const sessionDateStr = sessionDate.toDateString();
+
+      // calcolo
+      if (!lastDate) {
+        currentStreak = 1;
+        lastDate = sessionDate;
+      } else {
+        const lastDateStr = new Date(lastDate).toDateString();
+        const daysDiff = Math.floor(
+          (sessionDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        // in base alla differenza, aggiorno le variabili sopra
+        if (daysDiff === 0) {
+          continue;
+        } else if (daysDiff === 1) {
+          currentStreak++;
+          lastDate = sessionDate;
+        } else {
+          maxStreak = Math.max(maxStreak, currentStreak);
+          currentStreak = 1;
+          lastDate = sessionDate;
+        }
+      }
+    }
+
+    // se la current è maggiore della max aggiorno (evito altri controli)
+    maxStreak = Math.max(maxStreak, currentStreak);
+    return maxStreak;
+  }
+
+  // stats per ogni singolo giorno
+  private getStatsByDay(sessions: any[], days: number) {
+    // mi creo i giorni della settimana + un record
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const byDay: Record<string, { sessions: number; minutes: number }> = {};
+
+    // scorro per ogni giorno
+    for (let i = 0; i < days; i++) {
+      // data
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      // aggiorno con ogni giorno
+      const dayName = daysOfWeek[date.getDay()];
+      if (!byDay[dayName]) {
+        byDay[dayName] = { sessions: 0, minutes: 0 };
+      }
+    }
+
+    // per ogni sessione
+    sessions.forEach(s => {
+      // data
+      const sessionDate = new Date(s.completedAt);
+      const now = new Date();
+      // diff girorni
+      const daysDiff = Math.floor(
+        (now.getTime() - sessionDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      // aggiorno le variabili
+      if (daysDiff < days) {
+        const dayName = daysOfWeek[sessionDate.getDay()];
+        byDay[dayName].sessions++;
+        byDay[dayName].minutes += s.duration;
+      }
+    });
+
+    return byDay;
+  }
+
 }
