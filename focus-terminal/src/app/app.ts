@@ -47,8 +47,8 @@ export class App implements OnInit {
 
   // comandi 
   private readonly COMMANDS = [
-    'start', 'stop', 'status', 'sessions', 
-    'clear', 'help', 'pomodoro', 'add', 
+    'start', 'stop', 'status', 'sessions',
+    'clear', 'help', 'pomodoro', 'add',
     'done', 'todos', 'theme', 'play',
     'pause', 'auth'
   ];
@@ -143,9 +143,9 @@ export class App implements OnInit {
         this._todo.tasks.set(data.tasks || [])
         this.theme.set(data.theme || 'green')
       }
-    }) 
+    })
 
-     // Salva il tema su Firestore quando cambia
+    // Salva il tema su Firestore quando cambia
     effect(() => {
       firebaseSync.saveTheme(this.theme());
     });
@@ -253,11 +253,29 @@ export class App implements OnInit {
       } else {
         this.lines.update(l => [...l, '❌ Not logged in']);
       }
+    } else if (result.action === 'STATS') {
+      // calcolo
+      const stats = this._timer.calculateStats();
+      // template carino
+      const output = [
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        '      PRODUCTIVITY STATS',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        `  Total Sessions: ${stats.totalSessions}`,
+        `  Total Time: ${this.formatDuration(stats.totalMinutes)}`,
+        `  Average: ${stats.averageDuration}min`,
+        '',
+        `  Today: ${stats.todaySessions} sessions / ${this.formatDuration(stats.todayMinutes)}`,
+        `  This Week: ${stats.weekSessions} sessions / ${this.formatDuration(stats.weekMinutes)}`,
+        '',
+        `  🔥 Current Streak: ${stats.currentStreak} days`,
+        `  🏆 Best Streak: ${stats.bestStreak} days`,
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+      ];
+      this.lines.update(l => [...l, ...output]);
     }
 
   }
-
-
 
 
   /**
@@ -281,7 +299,7 @@ export class App implements OnInit {
     // Se è un comando con opzioni disponibili
     if (this.COMMAND_OPTIONS[cmd]) {
       const options = this.COMMAND_OPTIONS[cmd];
-      
+
       // Se l'argomento è vuoto, mostra tutte le opzioni
       if (!arg) {
         this.lines.update(l => [...l, `> ${current}`, options.join('   ')]);
@@ -290,7 +308,7 @@ export class App implements OnInit {
 
       // Filtra le opzioni che iniziano con arg
       const matches = options.filter(opt => opt.startsWith(arg));
-      
+
       if (matches.length === 1) {
         this.command.set(`${cmd} ${matches[0]}`);
       } else if (matches.length > 1) {
@@ -308,6 +326,16 @@ export class App implements OnInit {
         this.lines.update(l => [...l, `> ${current}`, matches.join('   ')]);
       }
     }
+  }
+
+  // helper stats
+  private formatDuration(minutes: number): string {
+    // ore e min
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours === 0) return `${mins}min`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h ${mins}min`;
   }
 }
 
