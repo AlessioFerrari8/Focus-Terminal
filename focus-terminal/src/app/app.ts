@@ -246,7 +246,13 @@ export class App implements OnInit {
     } else if (result.action === 'LOGOUT') {
       this._auth.logout()
     } else if (result.action === 'AUTH_STATUS') {
-      this._auth.currentUser();
+      const user = this._auth.currentUser();
+      if (user) {
+        const email = user?.email || 'Anonymous';
+        this.lines.update(l => [...l, `👤 Logged as: ${email}`]);
+      } else {
+        this.lines.update(l => [...l, '❌ Not logged in']);
+      }
     }
 
   }
