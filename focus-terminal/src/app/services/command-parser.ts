@@ -2,17 +2,26 @@ import { Injectable } from '@angular/core';
 
 export type CommandResult = {
   output: string[];
-  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME' | 'ADD_TASK' | 'TODOS' | 'DONE' | 'POMODORO' | 'PLAY' | 'PAUSE';
+  action?: 'START_TIMER' | 'STOP_TIMER' | 'RESET' | 'CLEAR' 
+  | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME' 
+  | 'ADD_TASK' | 'TODOS' | 'DONE' | 'POMODORO' | 'PLAY' 
+  | 'PAUSE' | 'LOGIN' | 'REGISTER' | 'LOGOUT' | 'AUTH_STATUS';
   duration?: number; // durata del timer
   theme?: string;
   task?: string;
   n?: number;
   genre?: string;
+  email?: string;
+  password?: string;
 }
 
 // help
 const HELP_TEXT = [  
   'Available commands:',
+  '  auth login    — login with email and password',
+  '  auth register — register with email and password',
+  '  auth logout   — logout from account',
+  '  auth status   — current user',
   '  start [min]   — start a session (default 25 min)',
   '  stop          — stops a session',
   '  status        — shows the active timer',
@@ -84,6 +93,31 @@ export class CommandParser {
         return { output: [`Starting ${genre} music`], action: 'PLAY', genre}
       case 'pause':
         return { output: [`Stopping music`], action: 'PAUSE'}
+      case 'auth':
+        // gestisco i vari sottocomandi
+        const subcommand = args[0];
+        if (subcommand === 'login') {
+          // 2 args
+          const authEmail = args[1];
+          const authPassword = args[2];
+          if (!authEmail || !authPassword) {
+            return { output: ['Usage: auth login <email> <password>'] };
+          }
+          return { output: [`Logging in as ${authEmail}...`], action: 'LOGIN', email: authEmail, password: authPassword};
+        } else if (subcommand === 'register') {
+          const authEmail = args[1];
+          const authPassword = args[2];
+          if (!authEmail || !authPassword) {
+            return { output: ['Usage: auth register <email> <password>'] };
+          }
+          return { output: [`Registering ${authEmail}...`], action: 'REGISTER', email: authEmail, password: authPassword};
+        } else if (subcommand === 'logout') {
+          return { output: ['Logging out...'], action: 'LOGOUT'};
+        } else if (subcommand === 'status') {
+          return { output: [], action: 'AUTH_STATUS'};
+        } else {
+          return { output: ['Auth subcommands: login, register, logout, status'] };
+        }
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }
