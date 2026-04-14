@@ -1,4 +1,5 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { FirestoreSync } from './firestore-sync';
 
 
 export type Todos = {
@@ -7,12 +8,20 @@ export type Todos = {
   done: boolean;
 }
 
-
 @Injectable({
   providedIn: 'root',
 })
 export class Todo {
-  private tasks: WritableSignal<Todos[]> = signal<Todos[]>([]);
+  private firebaseSync = inject(FirestoreSync)
+  // semplifico e non uso più signal 
+  tasks: WritableSignal<any[]> = signal<any[]>([]);
+
+  constructor() {
+    // Sincronizza i task quando cambiano
+    effect(() => {
+      this.firebaseSync.saveTasks(this.tasks());
+    });
+  }
 
 
   add(text: string): void {

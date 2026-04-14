@@ -1,4 +1,5 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { FirestoreSync } from './firestore-sync';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +21,17 @@ export class Timer {
   private readonly WORK_MINUTES = 25;
   private readonly BREAK_MINUTES = 5;
 
+  
+  private firebaseSync = inject(FirestoreSync);
   // sessioni
-  sessions = signal<{ duration: number; completedAt: Date }[]>([]);
+  sessions = signal<any[]>([]);
+
+  constructor() {
+    // Sincronizza le sessioni quando cambiano
+    effect(() => {
+      this.firebaseSync.saveSessions(this.sessions());
+    });
+  }
 
   completeSession(duration: number) {
     this.sessions.update(old => [...old, { duration, completedAt: new Date() }]);
