@@ -13,6 +13,7 @@ import { NgClass } from '@angular/common';
 import { Todo } from './services/todo';
 import { Audio } from './services/audio';
 import { FirestoreSync } from './services/firestore-sync';
+import { Auth } from './services/auth';
 
 
 @Component({
@@ -42,13 +43,14 @@ export class App implements OnInit {
   private _http = inject(HttpClient);
   private _todo = inject(Todo);
   private _music = inject(Audio);
+  private _auth = inject(Auth)
 
   // comandi 
   private readonly COMMANDS = [
     'start', 'stop', 'status', 'sessions', 
     'clear', 'help', 'pomodoro', 'add', 
     'done', 'todos', 'theme', 'play',
-    'pause'
+    'pause', 'auth'
   ];
 
   // opzioni disponibili per i comandi
@@ -236,6 +238,14 @@ export class App implements OnInit {
       this._music.play(result.genre as 'rain' | 'white-noise' | 'lofi');
     } else if (result.action === 'PAUSE') {
       this._music.stop();
+    } else if (result.action === 'LOGIN' && result.email && result.password) {
+      this._auth.login(result.email, result.password)
+    } else if (result.action === 'REGISTER' && result.email && result.password) {
+      this._auth.register(result.email, result.password)
+    } else if (result.action === 'LOGOUT') {
+      this._auth.logout()
+    } else if (result.action === 'AUTH_STATUS') {
+      this._auth.currentUser();
     }
 
   }
