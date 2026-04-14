@@ -1,6 +1,5 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
-import firebase from 'firebase/compat/app';
 
 @Injectable({
   providedIn: 'root',

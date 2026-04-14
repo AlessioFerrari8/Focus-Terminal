@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "npm run build-config && ng serve",
+    "build-config": "node scripts/build-config.js",
+    "build": "npm run build-config && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
