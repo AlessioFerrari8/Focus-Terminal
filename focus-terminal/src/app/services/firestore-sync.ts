@@ -8,6 +8,7 @@ interface UserData {
   sessions: any[];
   tasks: any[];
   theme: string;
+  settings?: { workMinutes: number; breakMinutes: number };
   updatedAt: Date;
 }
 
@@ -87,6 +88,25 @@ export class FirestoreSync {
       console.log('Theme saved on firestore!');
     } catch (error) {
       console.error('Error while saving theme:', error);
+    }
+  }
+
+  // salvo settings, prendo in argomento i settings
+  async saveSettings(settings: { workMinutes: number; breakMinutes: number }) {
+    if (!this._currentUser) return;
+
+    try {
+      // SOLITA procedura
+      const firestore = getFirestore();
+      const userDocRef = doc(firestore, 'users', this._currentUser.uid);
+      // aggiorno 
+      await updateDoc(userDocRef, {
+        settings: settings,
+        updatedAt: new Date()
+      })
+      console.log('Settings saved on firestore!');
+    } catch (error) {
+      console.error('Error while saving settings:', error);
     }
   }
 
