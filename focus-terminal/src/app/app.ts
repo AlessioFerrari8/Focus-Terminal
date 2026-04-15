@@ -231,13 +231,13 @@ export class App implements OnInit {
       const list = this._timer.sessions();
       if (list.length === 0) {
         // se non ci sono state sessioni
-        this.lines.update(l => [...l, 'Sessions:', 'No sessions yet.']);
+        this.lines.update(l => [...l, '📋 Sessions:', 'No sessions yet.']);
       } else {
         // stampo tutta la history delle sessioni
         const output = list.map((s, i) =>
-          `  ${i + 1}. ${s.duration} min — ${s.completedAt.toLocaleTimeString()}`
+          `  ${i + 1}. ⏱️ ${s.duration} min — ${s.completedAt.toLocaleTimeString()}`
         );
-        this.lines.update(l => [...l, 'Sessions:', ...output]);
+        this.lines.update(l => [...l, '📋 Sessions:', ...output]);
       }
     } else if (result.action === 'STATUS') {
       const msg = this._timer.isRunning() // messaaggio ritorno
@@ -250,38 +250,43 @@ export class App implements OnInit {
     } else if (result.action === 'ADD_TASK' && result.task) {
       // uso il servizio per aggiungere un task
       this._todo.add(result.task);
+      this.lines.update(l => [...l, `  ➕ Task added: ${result.task}`]);
     } else if (result.action === 'TODOS') {
       // prendo dal servizio e stampo
       const todos = this._todo.getAll();
       const output = todos.length === 0 ? ['No tasks yet.'] : todos;
-      this.lines.update(l => [...l, 'Tasks:', ...output]);
+      this.lines.update(l => [...l, '📝 Tasks:', ...output]);
     } else if (result.action === 'DONE' && result.n) {
       // uso il servizio per completare
       this._todo.complete(result.n);
+      this.lines.update(l => [...l, `  ✅ Task ${result.n} completed!`]);
     } else if (result.action === 'POMODORO') {
       this._timer.startPomodoro();
+      this.lines.update(l => [...l, `  🍅 Pomodoro started — ${this._timer.settings().workMinutes}min focus / ${this._timer.settings().breakMinutes}min break`]);
     } else if (result.action === 'PLAY' && result.genre) {
       this._music.play(result.genre as 'rain' | 'white-noise' | 'lofi');
+      this.lines.update(l => [...l, `  🎵 Playing ${result.genre}...`]);
     } else if (result.action === 'PAUSE') {
       this._music.stop();
+      this.lines.update(l => [...l, `  ⏸️ Music paused`]);
     } else if (result.action === 'LOGIN' && result.email && result.password) {
       try {
         this._auth.login(result.email, result.password)
-        this.lines.update(l => [...l, 'Login Successful!', 'Welcome back'])
+        this.lines.update(l => [...l, '🔐 Login Successful!', '👋 Welcome back'])
       } catch (error: any) {
         this.lines.update(l => [...l, `Error: ${error.message}`])
       }
     } else if (result.action === 'REGISTER' && result.email && result.password) {
       try {
         this._auth.register(result.email, result.password)
-        this.lines.update(l => [...l, 'Registered Successful!', `Logged in as ${result.email}`])
+        this.lines.update(l => [...l, '🎉 Registered Successful!', `🔓 Logged in as ${result.email}`])
       } catch (error: any) {
         this.lines.update(l => [...l, `Error: ${error.message}`])
       }
     } else if (result.action === 'LOGOUT') {
       try {
         this._auth.logout()
-        this.lines.update(l => [...l, 'Logout Successful!',])
+        this.lines.update(l => [...l, '🚪 Logout Successful!',])
       } catch (error: any) {
         this.lines.update(l => [...l, `Error: ${error.message}`])
       }
@@ -299,9 +304,10 @@ export class App implements OnInit {
         // mostra stato corrente
         const settings = this._timer.settings();
         const output = [
-          '  current-theme: ' + this.theme(),
-          `  pomodoro-work: ${settings.workMinutes} min`,
-          `  pomodoro-break: ${settings.breakMinutes} min`,
+          '⚙️ SETTINGS',
+          '  🎨 current-theme: ' + this.theme(),
+          `  ⏰ pomodoro-work: ${settings.workMinutes} min`,
+          `  ☕ pomodoro-break: ${settings.breakMinutes} min`,
           '  -',
           '  Usage: settings <key> <value>',
           '  Example: settings pomodoro-work 30'
@@ -322,7 +328,7 @@ export class App implements OnInit {
           this._timer.settings.set({ ...settings, breakMinutes: result.n });
         }
         
-        const output = [`  ${result.key}: ${oldValue} min → ${result.n} min`];
+        const output = [`  ✨ ${result.key}: ${oldValue} min → ${result.n} min`];
         this.lines.update(l => [...l, ...output]);
       }
     } else if (result.action === 'STATS') {
@@ -331,14 +337,14 @@ export class App implements OnInit {
       // template carino
       const output = [
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-        '      PRODUCTIVITY STATS',
+        '     📊 PRODUCTIVITY STATS',
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-        `  Total Sessions: ${stats.totalSessions}`,
-        `  Total Time: ${this.formatDuration(stats.totalMinutes)}`,
-        `  Average: ${stats.averageDuration}min`,
+        `  💪 Total Sessions: ${stats.totalSessions}`,
+        `  ⏱️ Total Time: ${this.formatDuration(stats.totalMinutes)}`,
+        `  📈 Average: ${stats.averageDuration}min`,
         '',
-        `  Today: ${stats.todaySessions} sessions / ${this.formatDuration(stats.todayMinutes)}`,
-        `  This Week: ${stats.weekSessions} sessions / ${this.formatDuration(stats.weekMinutes)}`,
+        `  📅 Today: ${stats.todaySessions} sessions / ${this.formatDuration(stats.todayMinutes)}`,
+        `  📆 This Week: ${stats.weekSessions} sessions / ${this.formatDuration(stats.weekMinutes)}`,
         '',
         `  🔥 Current Streak: ${stats.currentStreak} days`,
         `  🏆 Best Streak: ${stats.bestStreak} days`,
@@ -348,7 +354,7 @@ export class App implements OnInit {
     } else if (result.action === 'WEEKLY') {
       // calcolo con il metodo dal timer
       const weeklyStats = this._timer.getBarChart()
-      this.lines.update(l => [...l, ...weeklyStats]);
+      this.lines.update(l => [...l, '📉 WEEKLY STATS', ...weeklyStats]);
     } else if (result.action === 'PROFILE') {
       const stats = this._timer.calculateStats();
       const user = this._auth.currentUser();
@@ -364,13 +370,13 @@ export class App implements OnInit {
       
       const output = [
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-        '👤 PROFILE',
+        '          👤 PROFILE',
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-        `  Email: ${user?.email || 'Not logged in'}`,
+        `  📬 Email: ${user?.email || 'Not logged in'}`,
         `  Joined: ${joinedDays}`,
         '',
         '  📈 Stats:',
-        `    Total Time: ${this.formatDuration(stats.totalMinutes)}`,
+        `    ⏰ Total Time: ${this.formatDuration(stats.totalMinutes)}`,
         `    Sessions: ${stats.totalSessions}`,
         `    Avg Duration: ${stats.averageDuration}min`,
         '',

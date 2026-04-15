@@ -59,24 +59,24 @@ export class CommandParser {
         return { output: HELP_TEXT, action: 'HELP' };
       case 'start':
         const minutes = parseInt(args[0]) || 25
-        return { output: [`Starting ${minutes}min focus session...`], action: 'START_TIMER', duration: minutes };
+        return { output: [`▶️ Starting ${minutes}min focus session...`], action: 'START_TIMER', duration: minutes };
       case 'stop':
-        return { output: ['Session stopped.'], action: 'STOP_TIMER' }
+        return { output: ['⏹️ Session stopped.'], action: 'STOP_TIMER' }
       case 'clear':
         return { output: [], action: 'CLEAR' };
       case 'status':
-        return { output: ['No active session.'], action: 'STATUS' };
+        return { output: ['⏱️ No active session.'], action: 'STATUS' };
       case 'sessions':
         return { output: [], action: 'SESSIONS_HISTORY'}
       case 'theme':
         const theme = args[0] || null;
         if (!theme) {
           return { 
-            output: ['Available themes:', `  ${COMMAND_OPTIONS.theme.join('  ')}`, '  Usage: theme [color]'], 
+            output: ['🎨 Available themes:', `  ${COMMAND_OPTIONS.theme.join('  ')}`, '  Usage: theme [color]'], 
             action: 'CHANGE_THEME' 
           };
         }
-        return { output: [`Switching to ${theme} theme`], action: 'CHANGE_THEME', theme }
+        return { output: [`🎨 Switching to ${theme} theme`], action: 'CHANGE_THEME', theme }
       case 'settings':
         const key = args[0];
         const value = args[1];
@@ -95,29 +95,29 @@ export class CommandParser {
         if (isNaN(numValue) || numValue <= 0) {
           return { output: ['Value must be a positive number'], action: 'SETTINGS' };
         }
-        return { output: [`Settings updated!`], action: 'SETTINGS', key, n: numValue }
+        return { output: [`⚙️ Settings updated!`], action: 'SETTINGS', key, n: numValue }
       case 'add':
         const task = args.join(' ') || '';
-        return { output: [`Task ${task} added correctly`], action: 'ADD_TASK', task }
+        return { output: [`✅ Task added correctly`], action: 'ADD_TASK', task }
       case 'todos':
         return { output: [], action: 'TODOS' }
       case 'done':
         const n = parseInt(args[0]);
         if (isNaN(n)) return { output: ['Usage: done [number]'] };
-        return { output: [`Task ${n} completed!`], action: 'DONE', n }
+        return { output: [`✅ Task ${n} completed!`], action: 'DONE', n }
       case 'pomodoro':
-        return { output: [`Starting Pomodoro mode — 25min work / 5min break`], action: 'POMODORO'}
+        return { output: [`🍅 Starting Pomodoro mode...`], action: 'POMODORO'}
       case 'play':
         const genre = args.join('') || null;
         if (!genre) {
           return { 
-            output: ['Available music types:', `  ${COMMAND_OPTIONS.play.join('  ')}`, '  Usage: play [type]'], 
+            output: ['🎵 Available music types:', `  ${COMMAND_OPTIONS.play.join('  ')}`, '  Usage: play [type]'], 
             action: 'PLAY' 
           };
         }
-        return { output: [`Starting ${genre} music`], action: 'PLAY', genre}
+        return { output: [`🎵 Starting ${genre} music`], action: 'PLAY', genre}
       case 'pause':
-        return { output: [`Stopping music`], action: 'PAUSE'}
+        return { output: [`⏸️ Stopping music`], action: 'PAUSE'}
       case 'auth':
         // gestisco i vari sottocomandi
         const subcommand = args[0];
@@ -128,27 +128,27 @@ export class CommandParser {
           if (!authEmail || !authPassword) {
             return { output: ['Usage: auth login <email> <password>'] };
           }
-          return { output: [`Logging in as ${authEmail}...`], action: 'LOGIN', email: authEmail, password: authPassword};
+          return { output: [`🔐 Logging in as ${authEmail}...`], action: 'LOGIN', email: authEmail, password: authPassword};
         } else if (subcommand === 'register') {
           const authEmail = args[1];
           const authPassword = args[2];
           if (!authEmail || !authPassword) {
             return { output: ['Usage: auth register <email> <password>'] };
           }
-          return { output: [`Registering ${authEmail}...`], action: 'REGISTER', email: authEmail, password: authPassword};
+          return { output: [`📝 Registering ${authEmail}...`], action: 'REGISTER', email: authEmail, password: authPassword};
         } else if (subcommand === 'logout') {
-          return { output: ['Logging out...'], action: 'LOGOUT'};
+          return { output: ['🚪 Logging out...'], action: 'LOGOUT'};
         } else if (subcommand === 'status') {
           return { output: [], action: 'AUTH_STATUS'};
         } else {
           return { output: ['Auth subcommands: login, register, logout, status'] };
         } 
       case 'stats':
-        return { output: [`Showing stats`], action: 'STATS'}
+        return { output: [`📊 Showing stats`], action: 'STATS'}
       case 'weekly':
-        return { output: [`Showing weekly stats`], action: 'WEEKLY'}
+        return { output: [`📈 Showing weekly stats`], action: 'WEEKLY'}
       case 'profile':
-        return { output: [`Showing profile`], action: 'PROFILE'}
+        return { output: [`👤 Showing profile`], action: 'PROFILE'}
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }

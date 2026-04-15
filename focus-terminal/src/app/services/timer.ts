@@ -332,9 +332,9 @@ export class Timer {
     const stats = this.getDayOfWeek();
     const output: string[] = [
       '━━━━━━━━━━━━━━━━━━━━━━',
-      '      THIS WEEK',
+      '    🎯 THIS WEEK',
       '━━━━━━━━━━━━━━━━━━━━━━'
-    ];
+    ]; 
 
     // Calcola il massimo per normalizzare la barra
     const maxMinutes = Math.max(
