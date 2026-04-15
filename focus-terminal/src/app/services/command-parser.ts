@@ -14,31 +14,33 @@ export type CommandResult = {
   genre?: string;
   email?: string;
   password?: string;
+  key?: string; // chiave del setting 
 }
 
 // help
 const HELP_TEXT = [  
   'Available commands:',
-  '  auth login    — login with email and password',
-  '  auth register — register with email and password',
-  '  auth logout   — logout from account',
-  '  auth status   — current user',
-  '  start [min]   — start a session (default 25 min)',
-  '  stop          — stops a session',
-  '  status        — shows the active timer',
-  '  add [task]    — adds a task',
-  '  done [n]      — completes a task',
-  '  todos         — shows all tasks',
-  '  pomodoro      — start a session with 5 min pause',
-  '  sessions      — shows history',
-  '  stats         — shows stats with sessions',
-  '  weekly        — stats for every day of the week',
-  '  profile       — shows the profile of a user',
-  '  play [type]   — plays some music',
-  '  pause         — stop music',
-  '  clear         — clean the terminal',
-  '  theme [color] — choose theme',
-  '  help          — show this message',
+  '  add [task]         — adds a task',
+  '  auth login         — login with email and password',
+  '  auth logout        — logout from account',
+  '  auth register      — register with email and password',
+  '  auth status        — current user',
+  '  clear              — clean the terminal',
+  '  done [n]           — completes a task',
+  '  help               — show this message',
+  '  pause              — stop music',
+  '  play [type]        — plays some music',
+  '  pomodoro           — start a session with 5 min pause',
+  '  profile            — shows the profile of a user',
+  '  sessions           — shows history',
+  '  settings           — view settings or "settings <key> <value>"',
+  '  start [min]        — start a session (default 25 min)',
+  '  stats              — shows stats with sessions',
+  '  status             — shows the active timer',
+  '  stop               — stops a session',
+  '  theme [color]      — choose theme',
+  '  todos              — shows all tasks',
+  '  weekly             — stats for every day of the week',
 ];
 
 // opzioni disponibili per i comandi
@@ -75,6 +77,25 @@ export class CommandParser {
           };
         }
         return { output: [`Switching to ${theme} theme`], action: 'CHANGE_THEME', theme }
+      case 'settings':
+        const key = args[0];
+        const value = args[1];
+        if (!key) {
+          // mostra tutti i settings correnti
+          return { 
+            output: ['Settings available:', '  pomodoro-work (minutes)', '  pomodoro-break (minutes)', 'Usage: settings <key> <value>'], 
+            action: 'SETTINGS'
+          };
+        }
+        if (!value) {
+          return { output: [`Usage: settings ${key} <value>`], action: 'SETTINGS' };
+        }
+        // parso il valore in pos 1
+        const numValue = parseInt(value);
+        if (isNaN(numValue) || numValue <= 0) {
+          return { output: ['Value must be a positive number'], action: 'SETTINGS' };
+        }
+        return { output: [`Settings updated!`], action: 'SETTINGS', key, n: numValue }
       case 'add':
         const task = args.join(' ') || '';
         return { output: [`Task ${task} added correctly`], action: 'ADD_TASK', task }
