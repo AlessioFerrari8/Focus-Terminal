@@ -22,6 +22,7 @@ A web-based terminal emulator built with Angular that combines productivity tool
 - **🎨 Theme System** - Multiple color themes (green, amber, red, cyan)
 - **💾 Data Persistence** - Cloud sync with Firestore for all data
 - **⚙️ Customizable Settings** - Adjust pomodoro durations to your preference
+- **🔔 Notifications** - Desktop notifications when sessions complete
 
 ## 🚀 Quick Start
 
@@ -79,6 +80,13 @@ ng serve
 
 ### Help
 - `help` — Show all available commands
+
+
+### Keyboard shortcuts
+Ctrl + k - start pomodoro
+Ctrl + l - clear terminal
+up/down  - history navigation
+tab      - auto-complete
 
 ## 🛠️ Tech Stack
 
