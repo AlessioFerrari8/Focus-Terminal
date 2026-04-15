@@ -17,11 +17,12 @@ export class Timer {
   pomodoroRound: WritableSignal<number> = signal<number>(0);
   isBreak: WritableSignal<boolean> = signal<boolean>(false);
 
-  // tempi
-  private readonly WORK_MINUTES = 25;
-  private readonly BREAK_MINUTES = 5;
+  // settings
+  settings: WritableSignal<{ workMinutes: number; breakMinutes: number }> = signal({
+    workMinutes: 25,
+    breakMinutes: 5,
+  });
 
-  
   private firebaseSync = inject(FirestoreSync);
   // sessioni
   sessions = signal<any[]>([]);
@@ -61,7 +62,7 @@ export class Timer {
     // aggiorno i 2 signal e faccio partire normalmente
     this.pomodoroMode.set(true);
     this.isBreak.set(false);
-    this.start(this.WORK_MINUTES);
+    this.start(this.settings().workMinutes);
   }
 
   stop(completed = false) {
@@ -81,13 +82,13 @@ export class Timer {
           // pausa?
           this.isBreak.set(false);
           // faccio partire il tempo di lavoro
-          setTimeout(() => this.start(this.WORK_MINUTES), 500)
+          setTimeout(() => this.start(this.settings().workMinutes), 500)
         } else {
           // lavoro?
           this.pomodoroRound.update(old => old + 1);
           this.isBreak.set(true)
           // faccio partire il tempo di pausa
-          setTimeout(() => this.start(this.BREAK_MINUTES), 500)
+          setTimeout(() => this.start(this.settings().breakMinutes), 500)
         }
       }
     } 
