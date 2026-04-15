@@ -50,7 +50,7 @@ export class App implements OnInit {
     'start', 'stop', 'status', 'sessions',
     'clear', 'help', 'pomodoro', 'add',
     'done', 'todos', 'theme', 'play',
-    'pause', 'auth'
+    'pause', 'auth', 'weekly'
   ];
 
   // opzioni disponibili per i comandi
@@ -197,7 +197,8 @@ export class App implements OnInit {
       this.cmdInput.nativeElement.focus()
     }, 0);
 
-    // fare switch
+    //-------------------------------------------
+    // blocco per comandi
     if (result.action === 'START_TIMER' && result.duration) {
       this._timer.start(result.duration); // faccio partire
     } else if (result.action === 'STOP_TIMER') {
@@ -240,11 +241,26 @@ export class App implements OnInit {
     } else if (result.action === 'PAUSE') {
       this._music.stop();
     } else if (result.action === 'LOGIN' && result.email && result.password) {
-      this._auth.login(result.email, result.password)
+      try {
+        this._auth.login(result.email, result.password)
+        this.lines.update(l => [...l, 'Login Successful!', 'Welcome back'])
+      } catch (error: any) {
+        this.lines.update(l => [...l, `Error: ${error.message}`])
+      }
     } else if (result.action === 'REGISTER' && result.email && result.password) {
-      this._auth.register(result.email, result.password)
+      try {
+        this._auth.register(result.email, result.password)
+        this.lines.update(l => [...l, 'Registered Successful!', `Logged in as ${result.email}`])
+      } catch (error: any) {
+        this.lines.update(l => [...l, `Error: ${error.message}`])
+      }
     } else if (result.action === 'LOGOUT') {
-      this._auth.logout()
+      try {
+        this._auth.logout()
+        this.lines.update(l => [...l, 'Logout Successful!',])
+      } catch (error: any) {
+        this.lines.update(l => [...l, `Error: ${error.message}`])
+      }
     } else if (result.action === 'AUTH_STATUS') {
       const user = this._auth.currentUser();
       if (user) {
@@ -273,9 +289,16 @@ export class App implements OnInit {
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
       ];
       this.lines.update(l => [...l, ...output]);
+    } else if (result.action === 'WEEKLY') {
+      // calcolo con il metodo dal timer
+      const weeklyStats = this._timer.getBarChart()
+      this.lines.update(l => [...l, ...weeklyStats]);
     }
 
   }
+
+  // fine blocco per comandi
+  //-------------------------------------------
 
 
   /**
