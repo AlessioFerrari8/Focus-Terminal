@@ -280,4 +280,98 @@ export class Timer {
     return byDay;
   }
 
+  getDayOfWeek() {
+    // prendo data, e calcolo quella di oggi
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // calcolo giorno 1 settimana fa
+    const weekAgo = new Date(today)
+    weekAgo.setDate(today.getDate() - 7);
+
+
+    // filtro per sessioni dentro questo lasso di tempo
+    const weekSessions = this.sessions().filter(s => {
+      const sessionDate = new Date(s.completedAt);
+      // dalla data di 7 giorni fa in avanti
+      return sessionDate >= weekAgo;
+    })
+
+    // raggruppo per giorno della settimana
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const statsByDay: Record<string, { minutes: number; sessions: number }> = {};
+
+    // inizializzo i 7 giorni
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      // prendo solo il nome per confrontarlo
+      const dayName = daysOfWeek[d.getDay()]
+      if (!statsByDay[dayName]) {
+        // inziializzo
+        statsByDay[dayName] = { minutes: 0, sessions: 0 };
+      }
+    }
+
+    // Aggiungi le sessioni al giorno corretto
+    weekSessions.forEach(s => {
+      const sDate = new Date(s.completedAt);
+      const dayName = daysOfWeek[sDate.getDay()];
+      if (statsByDay[dayName]) {
+        statsByDay[dayName].minutes += s.duration;
+        statsByDay[dayName].sessions++;
+      }
+    });
+
+    return statsByDay;
+  }
+
+  getBarChart(): string[] {
+    // calcolo le stats e preparo l'output
+    const stats = this.getDayOfWeek();
+    const output: string[] = [
+      '━━━━━━━━━━━━━━━━━━━━━━',
+      '      THIS WEEK',
+      '━━━━━━━━━━━━━━━━━━━━━━'
+    ];
+
+    // Calcola il massimo per normalizzare la barra
+    const maxMinutes = Math.max(
+      ...Object.values(stats).map(s => s.minutes),
+      1
+    );
+
+    // Ordine fisso della settimana
+    const orderDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    let totalMinutes = 0, totalSessions = 0;
+
+    // ciclo per riempire
+    orderDays.forEach(day => {
+      const dayStats = stats[day];
+      if (dayStats) {
+        totalMinutes += dayStats.minutes;
+        totalSessions += dayStats.sessions;
+        
+        const { minutes, sessions } = dayStats;
+        // Barra: scala da 0 a 10 blocchi
+        const barCount = Math.round((minutes / maxMinutes) * 10);
+        const bar = '█'.repeat(barCount);
+        
+        // Formato durata
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        const duration = hours > 0 ? `${hours}h ${mins}min` : `${mins}min`;
+        
+        // aggiungo
+        output.push(`  ${day}: ${duration} (${sessions} sessions)   ${bar}`);
+      }
+    });
+
+    // finale
+    output.push('━━━━━━━━━━━━━━━━━━━━━━');
+    output.push(`  Total: ${totalMinutes}min (${totalSessions} sessions)`);
+    
+    return output;
+  }
+
 }
