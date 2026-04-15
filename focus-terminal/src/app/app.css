@@ -2,6 +2,21 @@ html {
     scroll-behavior: smooth;
 }
 
+/* ============================================
+   RESPONSIVE FONT SIZES
+   ============================================ */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 12px;
+  }
+}
+
 /* PER BLINK */
 @keyframes cursor-blink {
     0%   { opacity: 1; }
@@ -71,4 +86,61 @@ html {
 ::-webkit-scrollbar-thumb {
   background: rgba(74, 222, 128, 0.3);
   border-radius: 4px;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  .command-prompt {
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .status-box {
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+  }
+
+  .line-enter {
+    animation: slide-in-left 0.2s ease-out;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .command-prompt {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .status-box {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  /* Nasconde scrollbar su mobile per più spazio */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .timer-display {
+    font-size: 0.9rem;
+  }
+
+  /* Touch-friendly input */
+  input {
+    font-size: 16px; /* Previene zoom su iOS */
+  }
+
+  .responsive-terminal {
+    padding: 0.5rem;
+  }
 }

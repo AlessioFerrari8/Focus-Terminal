@@ -1,4 +1,4 @@
-<div #terminal class="h-screen bg-black font-mono p-4 overflow-y-auto" [ngClass]="themeClass()">
+<div #terminal class="h-screen bg-black font-mono p-4 overflow-y-auto responsive-terminal" [ngClass]="themeClass()">
   @for(line of lines(); track $index) {
     <div class="line-enter whitespace-pre-wrap ">
       {{ line }}
