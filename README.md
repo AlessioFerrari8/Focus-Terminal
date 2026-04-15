@@ -26,7 +26,7 @@ A web-based terminal emulator built with Angular that combines productivity tool
 ## 🚀 Quick Start
 
 ### Online
-Visit the deployed website directly (no setup needed)
+Visit the deployed [website](https://focus-terminal-phi.vercel.app/) directly (no setup needed)
 
 ### Local Development
 
@@ -135,9 +135,14 @@ focus-terminal/
 ng generate component path/to/component-name
 ```
 
-### Run tests
+### Generate new service
 ```bash
-ng test
+ng generate service path/to/service-name
+```
+
+### Test
+```bash
+ng serve
 ```
 
 ### Build for production
@@ -149,15 +154,21 @@ The build output will be stored in the `dist/` directory, optimized for performa
 
 ## 🔐 Configuration
 
+Go to firebase.console and configure a new app.
+
 Create a `config.json` in the `public/` folder for Firebase and app settings:
 
 ```json
 {
-  "firebase": {
-    "apiKey": "YOUR_API_KEY",
-    "projectId": "YOUR_PROJECT_ID",
-    "authDomain": "YOUR_AUTH_DOMAIN"
-  }
+    "firebase": {   
+        "apiKey": "your_api_key",
+        "authDomain": "your_auth_domain",
+        "projectId": "your_project_id",
+        "storageBucket": "your_storage_bucket",
+        "messagingSenderId": "your_messaging_sender_id",
+        "appId": "your_app_id",
+        "measurementId": "your_measurement_id"
+    }
 }
 ```
 
