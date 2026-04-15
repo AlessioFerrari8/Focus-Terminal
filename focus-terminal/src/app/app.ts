@@ -166,6 +166,15 @@ export class App implements OnInit {
     effect(() => {
       firebaseSync.saveSettings(this._timer.settings());
     });
+
+    // permesso per notifiche
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          console.log('Notification granted');
+        }
+      });
+    }
   }
 
   // Manteni il focus sull'input quando clicchi da qualsiasi parte

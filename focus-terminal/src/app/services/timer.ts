@@ -70,12 +70,25 @@ export class Timer {
       clearInterval(this.interval);
       this.interval = null;
     }
+
     if (completed) {
       this.completeSession(this._startedMinutes);
       // metto a true 
       this.sessionCompleted.set(true);
       // rimetto subito a false
       setTimeout(() => this.sessionCompleted.set(false), 100) 
+
+        //NOTIFICHE DESKTOP
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const title = this.isBreak() ? 'Break ended!' : 'Session completed! Well done';
+          const body = `${this._startedMinutes} focus minutes!`;
+          new Notification(title, {
+            body: body,
+            icon: '/banner.txt',
+            tag: 'focus-terminal'
+          });
+        }
+
       // se sono in pomodoro
       if (this.pomodoroMode()) {
         if (this.isBreak()) {
