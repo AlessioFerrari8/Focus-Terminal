@@ -81,10 +81,12 @@ export class Timer {
         //NOTIFICHE DESKTOP
         if ('Notification' in window && Notification.permission === 'granted') {
           const title = this.isBreak() ? 'Break ended!' : 'Session completed! Well done';
-          const body = `${this._startedMinutes} focus minutes!`;
+          const body = this.isBreak() 
+            ? `${this._startedMinutes} pause minutes!` 
+            : `${this._startedMinutes} focus minutes!`;          
           new Notification(title, {
             body: body,
-            icon: '/banner.txt',
+            icon: 'banner.txt',
             tag: 'focus-terminal'
           });
         }
