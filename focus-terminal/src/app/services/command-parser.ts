@@ -6,7 +6,7 @@ export type CommandResult = {
   | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME' 
   | 'ADD_TASK' | 'TODOS' | 'DONE' | 'POMODORO' | 'PLAY' 
   | 'PAUSE' | 'LOGIN' | 'REGISTER' | 'LOGOUT' | 'AUTH_STATUS'
-  | 'STATS' | 'WEEKLY';
+  | 'STATS' | 'WEEKLY' | 'PROFILE' | 'SETTINGS';
   duration?: number; // durata del timer
   theme?: string;
   task?: string;
@@ -33,6 +33,7 @@ const HELP_TEXT = [
   '  sessions      — shows history',
   '  stats         — shows stats with sessions',
   '  weekly        — stats for every day of the week',
+  '  profile       — shows the profile of a user',
   '  play [type]   — plays some music',
   '  pause         — stop music',
   '  clear         — clean the terminal',
@@ -125,6 +126,8 @@ export class CommandParser {
         return { output: [`Showing stats`], action: 'STATS'}
       case 'weekly':
         return { output: [`Showing weekly stats`], action: 'WEEKLY'}
+      case 'profile':
+        return { output: [`Showing profile`], action: 'PROFILE'}
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }

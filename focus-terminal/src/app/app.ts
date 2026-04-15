@@ -293,6 +293,36 @@ export class App implements OnInit {
       // calcolo con il metodo dal timer
       const weeklyStats = this._timer.getBarChart()
       this.lines.update(l => [...l, ...weeklyStats]);
+    } else if (result.action === 'PROFILE') {
+      const stats = this._timer.calculateStats();
+      const user = this._auth.currentUser();
+      
+      // Calcola giorni da quando si è registrato
+      let joinedDays = 'N/A';
+      if (user?.metadata?.creationTime) {
+        const createdDate = new Date(user.metadata.creationTime);
+        const now = new Date();
+        const days = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+        joinedDays = `${days} days ago`;
+      }
+      
+      const output = [
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        '👤 PROFILE',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        `  Email: ${user?.email || 'Not logged in'}`,
+        `  Joined: ${joinedDays}`,
+        '',
+        '  📈 Stats:',
+        `    Total Time: ${this.formatDuration(stats.totalMinutes)}`,
+        `    Sessions: ${stats.totalSessions}`,
+        `    Avg Duration: ${stats.averageDuration}min`,
+        '',
+        `  🔥 Best Streak: ${stats.bestStreak} days`,
+        `  📅 Current Streak: ${stats.currentStreak} days`,
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+      ];
+      this.lines.update(l => [...l, ...output]);
     }
 
   }
