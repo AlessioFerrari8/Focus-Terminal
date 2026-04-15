@@ -15,6 +15,7 @@ import { Todo } from './services/todo';
 import { Audio } from './services/audio';
 import { FirestoreSync } from './services/firestore-sync';
 import { Auth } from './services/auth';
+import { Beverage } from './services/beverage';
 
 
 @Component({
@@ -45,13 +46,14 @@ export class App implements OnInit {
   private _todo = inject(Todo);
   private _music = inject(Audio);
   private _auth = inject(Auth)
+  private _beverage = inject(Beverage)
 
   // comandi 
   private readonly COMMANDS = [
     'start', 'stop', 'status', 'sessions',
     'clear', 'help', 'pomodoro', 'add',
     'done', 'todos', 'theme', 'play',
-    'pause', 'auth', 'weekly', 'settings'
+    'pause', 'auth', 'weekly', 'settings', 'drink', 'drinks'
   ];
 
   // opzioni disponibili per i comandi
@@ -404,6 +406,20 @@ export class App implements OnInit {
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
       ];
       this.lines.update(l => [...l, ...output]);
+    } else if (result.action === 'DRINK' && result.drinkType) {
+      this._beverage.add(result.drinkType);
+      this.lines.update(l => [...l, `  🥤 ${result.drinkType} added!`]);
+    } else if (result.action === 'DRINKS') {
+      const count = this._beverage.getTodayCount();
+      if (Object.keys(count).length === 0) {
+        this.lines.update(l => [...l, '🥤 No beverages logged today.']);
+      } else {
+        const output = ['🥤 Beverages Today:'];
+        Object.entries(count).forEach(([type, qty]) => {
+          output.push(`  • ${qty}x ${type}`);
+        });
+        this.lines.update(l => [...l, ...output]);
+      }
     }
 
   }

@@ -6,7 +6,8 @@ export type CommandResult = {
   | 'HELP' | 'SESSIONS_HISTORY' | 'STATUS' | 'CHANGE_THEME' 
   | 'ADD_TASK' | 'TODOS' | 'DONE' | 'POMODORO' | 'PLAY' 
   | 'PAUSE' | 'LOGIN' | 'REGISTER' | 'LOGOUT' | 'AUTH_STATUS'
-  | 'STATS' | 'WEEKLY' | 'PROFILE' | 'SETTINGS';
+  | 'STATS' | 'WEEKLY' | 'PROFILE' | 'SETTINGS' 
+  | 'DRINK' | 'DRINKS';
   duration?: number; // durata del timer
   theme?: string;
   task?: string;
@@ -15,6 +16,7 @@ export type CommandResult = {
   email?: string;
   password?: string;
   key?: string; // chiave del setting 
+  drinkType?: string; // monster, redbull
 }
 
 // help
@@ -27,6 +29,8 @@ const HELP_TEXT = [
   '  auth status        — current user',
   '  clear              — clean the terminal',
   '  done [n]           — completes a task',
+  '  drink [type]       — log a beverage (monster, coffee, energy)',
+  '  drinks             — show today beverages',
   '  help               — show this message',
   '  pause              — stop music',
   '  play [type]        — plays some music',
@@ -149,6 +153,14 @@ export class CommandParser {
         return { output: [`📈 Showing weekly stats`], action: 'WEEKLY'}
       case 'profile':
         return { output: [`👤 Showing profile`], action: 'PROFILE'}
+      case 'drink':
+        const drinkType = args.join(' ') || null;
+        if (!drinkType) {
+          return { output: ['🥤 Usage: drink <type>'], action: 'DRINK' };
+        }
+        return { output: [`🥤 ${drinkType} logged!`], action: 'DRINK', drinkType: drinkType };
+      case 'drinks':
+        return { output: [], action: 'DRINKS' }
       default:
         return { output: [`Command not found: '${cmd}'. Type 'help' for commands.`] };
     }
