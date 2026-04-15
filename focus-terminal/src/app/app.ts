@@ -4,6 +4,7 @@ import {
   inject,
   OnInit,
   effect,
+  HostListener,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Timer } from './services/timer';
@@ -114,6 +115,14 @@ export class App implements OnInit {
       }
     });
 
+    // Mantieni il focus sull'input
+    effect(() => {
+      this.lines();
+      this.command();
+      setTimeout(() => {
+        this.cmdInput?.nativeElement?.focus();
+      }, 0);
+    });
   }
 
   // scritta carina inziale
@@ -159,6 +168,13 @@ export class App implements OnInit {
     });
   }
 
+  // Manteni il focus sull'input quando clicchi da qualsiasi parte
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    event.stopPropagation();
+    this.cmdInput?.nativeElement?.focus();
+  }
+
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'ArrowUp') {
       event.preventDefault(); // blocco il comportamento normale
@@ -181,7 +197,7 @@ export class App implements OnInit {
     }
   }
 
-  // TODO: gestire il problema che devo cliccare ogni volta
+  // Gestisci i comandi
   handleCommand() {
     const trimmed = this.command().trim();
     if (!trimmed) return;
