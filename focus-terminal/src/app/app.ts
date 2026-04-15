@@ -175,6 +175,16 @@ export class App implements OnInit {
         }
       });
     }
+
+    // scorciatoie
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        this._timer.startPomodoro(); // Ctrl+K = Pomodoro
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+        this.lines.set([]); // Ctrl+L = Clear
+      }
+    });
   }
 
   // Manteni il focus sull'input quando clicchi da qualsiasi parte
