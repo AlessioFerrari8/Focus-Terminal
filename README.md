@@ -61,6 +61,10 @@ ng serve
   - `pomodoro-work [minutes]` — Set work duration
   - `pomodoro-break [minutes]` — Set break duration
 
+### Beverage Tracking 🥤
+- `drink [type]` — Log a beverage (monster, coffee, energy, redbull, etc)
+- `drinks` — Show today's beverages and count
+
 ### Statistics & Profile
 - `sessions` — View all completed sessions
 - `stats` — Show productivity statistics
