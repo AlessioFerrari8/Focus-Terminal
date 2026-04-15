@@ -50,7 +50,7 @@ export class App implements OnInit {
     'start', 'stop', 'status', 'sessions',
     'clear', 'help', 'pomodoro', 'add',
     'done', 'todos', 'theme', 'play',
-    'pause', 'auth', 'weekly'
+    'pause', 'auth', 'weekly', 'settings'
   ];
 
   // opzioni disponibili per i comandi
@@ -142,12 +142,20 @@ export class App implements OnInit {
         this._timer.sessions.set(data.sessions || [])
         this._todo.tasks.set(data.tasks || [])
         this.theme.set(data.theme || 'green')
+        if (data.settings) {
+          this._timer.settings.set(data.settings);
+        }
       }
     })
 
     // Salva il tema su Firestore quando cambia
     effect(() => {
       firebaseSync.saveTheme(this.theme());
+    });
+
+    // Salva i settings su Firestore quando cambiano
+    effect(() => {
+      firebaseSync.saveSettings(this._timer.settings());
     });
   }
 
@@ -268,6 +276,38 @@ export class App implements OnInit {
         this.lines.update(l => [...l, `👤 Logged as: ${email}`]);
       } else {
         this.lines.update(l => [...l, '❌ Not logged in']);
+      }
+    } else if (result.action === 'SETTINGS') {
+      // Mostra i settings correnti o aggiorna
+      if (!result.key) {
+        // mostra stato corrente
+        const settings = this._timer.settings();
+        const output = [
+          '  current-theme: ' + this.theme(),
+          `  pomodoro-work: ${settings.workMinutes} min`,
+          `  pomodoro-break: ${settings.breakMinutes} min`,
+          '  -',
+          '  Usage: settings <key> <value>',
+          '  Example: settings pomodoro-work 30'
+        ];
+        this.lines.update(l => [...l, ...output]);
+      } else if (result.key && result.n !== undefined) {
+        // aggiorna il setting
+        const settings = this._timer.settings();
+        // valori vecchi
+        const oldValue = 
+          result.key === 'pomodoro-work' ? settings.workMinutes :
+          result.key === 'pomodoro-break' ? settings.breakMinutes : null;
+
+        // altri sotto 
+        if (result.key === 'pomodoro-work') {
+          this._timer.settings.set({ ...settings, workMinutes: result.n });
+        } else if (result.key === 'pomodoro-break') {
+          this._timer.settings.set({ ...settings, breakMinutes: result.n });
+        }
+        
+        const output = [`  ${result.key}: ${oldValue} min → ${result.n} min`];
+        this.lines.update(l => [...l, ...output]);
       }
     } else if (result.action === 'STATS') {
       // calcolo
