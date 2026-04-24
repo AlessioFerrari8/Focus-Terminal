@@ -16,6 +16,7 @@ import { Audio } from './services/audio';
 import { FirestoreSync } from './services/firestore-sync';
 import { Auth } from './services/auth';
 import { Beverage } from './services/beverage';
+import { BEVERAGES } from './core/beverage/beverage.model';
 
 
 @Component({
@@ -338,9 +339,9 @@ export class App implements OnInit {
         // aggiorna il setting
         const settings = this._timer.settings();
         // valori vecchi
-        const oldValue = 
+        const oldValue =
           result.key === 'pomodoro-work' ? settings.workMinutes :
-          result.key === 'pomodoro-break' ? settings.breakMinutes : null;
+            result.key === 'pomodoro-break' ? settings.breakMinutes : null;
 
         // altri sotto 
         if (result.key === 'pomodoro-work') {
@@ -348,7 +349,7 @@ export class App implements OnInit {
         } else if (result.key === 'pomodoro-break') {
           this._timer.settings.set({ ...settings, breakMinutes: result.n });
         }
-        
+
         const output = [`  ✨ ${result.key}: ${oldValue} min → ${result.n} min`];
         this.lines.update(l => [...l, ...output]);
       }
@@ -379,7 +380,7 @@ export class App implements OnInit {
     } else if (result.action === 'PROFILE') {
       const stats = this._timer.calculateStats();
       const user = this._auth.currentUser();
-      
+
       // Calcola giorni da quando si è registrato
       let joinedDays = 'N/A';
       if (user?.metadata?.creationTime) {
@@ -388,7 +389,7 @@ export class App implements OnInit {
         const days = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
         joinedDays = `${days} days ago`;
       }
-      
+
       const output = [
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
         '          👤 PROFILE',
@@ -408,7 +409,15 @@ export class App implements OnInit {
       this.lines.update(l => [...l, ...output]);
     } else if (result.action === 'DRINK' && result.drinkType) {
       this._beverage.add(result.drinkType);
-      this.lines.update(l => [...l, `  🥤 ${result.drinkType} added!`]);
+      const bev = BEVERAGES[result.drinkType.toLowerCase()];
+      if (bev) {
+        this.lines.update(l => [...l,
+        `  ${bev.icon} ${bev.name} logged!`,
+        `  📸 Image: ${bev.imagePath}`
+        ]);
+      } else {
+        this.lines.update(l => [...l, `  🥤 ${result.drinkType} added!`]);
+      }
     } else if (result.action === 'DRINKS') {
       const count = this._beverage.getTodayCount();
       if (Object.keys(count).length === 0) {
@@ -416,12 +425,15 @@ export class App implements OnInit {
       } else {
         const output = ['🥤 Beverages Today:'];
         Object.entries(count).forEach(([type, qty]) => {
-          output.push(`  • ${qty}x ${type}`);
+          const bev = BEVERAGES[type.toLowerCase()];
+          const icon = bev ? bev.icon : '🥤';
+          const name = bev ? bev.name : type;
+          const colorCode = bev ? bev.color : '#FFFFFF';
+          output.push(`  ${icon} ${qty}x ${name}`);
         });
         this.lines.update(l => [...l, ...output]);
       }
     }
-
   }
 
   // fine blocco per comandi

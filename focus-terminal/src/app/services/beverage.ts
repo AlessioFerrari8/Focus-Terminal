@@ -1,14 +1,20 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
+import { BEVERAGES, BeverageType } from '../core/beverage/beverage.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Beverage {
-  beverages: WritableSignal<{ type: string; timestamp: Date}[]> = signal([]);
+  beverages: WritableSignal<{ type: string; timestamp: Date; beverage?: BeverageType }[]> = signal([]);
 
   // nuova bevanda energetica
   add(type: string) {
-    this.beverages.update(old => [...old, { type, timestamp: new Date() }]);
+    const beverageData = BEVERAGES[type.toLowerCase()]
+    this.beverages.update(old => [...old, {
+      type,
+      timestamp: new Date(),
+      beverage: beverageData
+    }]);
   }
 
   // prendo le bevande di oggi
@@ -25,5 +31,15 @@ export class Beverage {
       count[b.type] = (count[b.type] || 0) + 1;
     });
     return count;
+  }
+
+  // Restituisce i dati della bevanda (per accedere a immagine, colore, etc)
+  getBeverageData(type: string): BeverageType | undefined {
+    return BEVERAGES[type.toLowerCase()];
+  }
+
+  // Restituisce tutte le bevande disponibili
+  getAllBeverages(): BeverageType[] {
+    return Object.values(BEVERAGES);
   }
 }
