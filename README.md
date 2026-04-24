@@ -32,7 +32,11 @@ Visit the deployed [website](https://focus-terminal-phi.vercel.app/) directly (n
 ### Local Development
 
 ```bash
+# Clone the repo
+git clone https://github.com/AlessioFerrari8/Focus-Terminal.git
+
 # Install dependencies
+cd focus-terminal
 npm install
 
 # Start dev server
