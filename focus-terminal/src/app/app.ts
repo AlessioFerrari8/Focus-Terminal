@@ -40,6 +40,8 @@ export class App implements OnInit {
   protected history = signal<string[]>([]);
   protected historyIndex = signal<number>(-1);
 
+  currentBeverageImage: WritableSignal<string | null> = signal(null);
+
   // serivizi
   protected _timer = inject(Timer);
   protected _commandParser = inject(CommandParser);
@@ -412,9 +414,10 @@ export class App implements OnInit {
       const bev = BEVERAGES[result.drinkType.toLowerCase()];
       if (bev) {
         this.lines.update(l => [...l,
-        `  ${bev.icon} ${bev.name} logged!`,
-        `  📸 Image: ${bev.imagePath}`
+        `  ${bev.icon} ${bev.name} logged!`
         ]);
+        this.currentBeverageImage.set(bev.imagePath);
+        setTimeout(() => this.currentBeverageImage.set(null), 3000);
       } else {
         this.lines.update(l => [...l, `  🥤 ${result.drinkType} added!`]);
       }

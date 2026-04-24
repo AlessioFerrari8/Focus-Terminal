@@ -4,6 +4,13 @@
       {{ line }}
     </div>
   }
+  <!-- Beverage Image Display -->
+  @if (currentBeverageImage(); as img) {
+    <div class="beverage-image-container">
+      <img [src]="img" alt="beverage" class="beverage-image" />
+    </div>
+  }
+
   @if(_timer.isRunning()) {
     <div class="timer-display text-yellow-400 text-sm mb-4 border-b border-green-900 pb-2">
       ⏱ Focus session active — {{ _timer.format() }} remaining
